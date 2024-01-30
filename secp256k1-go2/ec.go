@@ -19,9 +19,13 @@ func ecdsa_verify(pubkey, sig, msg []byte) int {
 	//if s.ParseBytes(sig) < 0 {
 	//	return -2
 	//}
-	if len(pubkey) != 32 {
+	if !s.ParseBytes(sig) {
 		return -2
 	}
+
+	//if len(pubkey) != 32 {
+	//	return -2
+	//}
 	if len(sig) != 64 {
 		return -3
 	}
@@ -103,18 +107,19 @@ func RecoverPublicKey(r, s, h []byte, recid int, pubkey *XY) bool {
 }
 */
 
-//nil on error
-//returns error code
+// nil on error
+// returns error code
 func RecoverPublicKey(sig_byte []byte, h []byte, recid int) ([]byte, int) {
-
 	var pubkey XY
 
-	if len(sig_byte) != 64 {
-		log.Panic("must pass in 64 byte pubkey")
-	}
+	//if len(sig_byte) != 64 {
+	//	log.Panic("must pass in 64 byte sig")
+	//}
 
 	var sig Signature
-	sig.ParseBytes(sig_byte[0:64])
+	if !sig.ParseBytes(sig_byte[0:64]) {
+		log.Panic("must pass in 64 byte sig")
+	}
 
 	//var sig Signature
 	var msg Number
@@ -186,7 +191,7 @@ func BaseMultiply2(k []byte) []byte {
 }
 */
 
-//test assumptions
+// test assumptions
 func _pubkey_test(pk XY) {
 
 	if pk.IsValid() == false {
@@ -241,8 +246,8 @@ func BaseMultiplyAdd(xy, k []byte) []byte {
 	return pk.Bytes()
 }
 
-//returns nil on failure
-//crash rather than fail
+// returns nil on failure
+// crash rather than fail
 func GeneratePublicKey(k []byte) []byte {
 
 	//log.Panic()
@@ -270,10 +275,10 @@ func GeneratePublicKey(k []byte) []byte {
 	return pk.Bytes()
 }
 
-//1 on success
-//must not be zero
+// 1 on success
+// must not be zero
 // must not be negative
-//must be less than order of curve
+// must be less than order of curve
 func SeckeyIsValid(seckey []byte) int {
 	if len(seckey) != 32 {
 		log.Panic()
@@ -292,7 +297,7 @@ func SeckeyIsValid(seckey []byte) int {
 	return 1
 }
 
-//returns 1 on success
+// returns 1 on success
 func PubkeyIsValid(pubkey []byte) int {
 	if len(pubkey) != 33 {
 		log.Panic()

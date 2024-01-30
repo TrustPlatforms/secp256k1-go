@@ -2,7 +2,6 @@ package secp256k1_go
 
 import (
 	"fmt"
-	"log"
 )
 
 type XY struct {
@@ -39,17 +38,18 @@ func (ge *XY) Print(lab string) {
 //All compact keys appear to be valid by construction, but may fail
 //is valid check
 
-//WARNING: for compact signatures, will succeed unconditionally
-//however, elem.IsValid will fail
+// WARNING: for compact signatures, will succeed unconditionally
+// however, elem.IsValid will fail
 func (elem *XY) ParsePubkey(pub []byte) bool {
 	if len(pub) != 33 {
-		log.Panic()
+		//log.Panic()
+		return false
 	}
 	if len(pub) == 33 && (pub[0] == 0x02 || pub[0] == 0x03) {
 		elem.X.SetB32(pub[1:33])
 		elem.SetXO(&elem.X, pub[0] == 0x03)
 	} else {
-		log.Panic()
+		//log.Panic()
 		return false
 	}
 	//THIS FAILS
@@ -72,7 +72,7 @@ func (elem *XY) ParsePubkey(pub []byte) bool {
 
 // Returns serialized key in in compressed format: "<02> <X>",
 // eventually "<03> <X>"
-//33 bytes
+// 33 bytes
 func (pub XY) Bytes() []byte {
 	pub.X.Normalize() // See GitHub issue #15
 
@@ -87,7 +87,7 @@ func (pub XY) Bytes() []byte {
 }
 
 // Returns serialized key in uncompressed format "<04> <X> <Y>"
-//65 bytes
+// 65 bytes
 func (pub *XY) BytesUncompressed() (raw []byte) {
 	pub.X.Normalize() // See GitHub issue #15
 	pub.Y.Normalize() // See GitHub issue #15
@@ -238,10 +238,10 @@ func (pk *XY) GetPublicKey() []byte {
 }
 */
 
-//use compact format
-//returns only 33 bytes
-//same as bytes()
-//TODO: deprecate, replace with .Bytes()
+// use compact format
+// returns only 33 bytes
+// same as bytes()
+// TODO: deprecate, replace with .Bytes()
 func (pk *XY) GetPublicKey() []byte {
 	return pk.Bytes()
 	/*

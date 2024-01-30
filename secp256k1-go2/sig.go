@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
-
 	//"bytes"
 	//"math/big"
 )
@@ -50,7 +49,7 @@ func (sig *Signature) recompute(r2 *Number, pubkey *XY, message *Number) (ret bo
 	return
 }
 
-//TODO: return type, or nil on failure
+// TODO: return type, or nil on failure
 func (sig *Signature) Recover(pubkey *XY, m *Number, recid int) (ret bool) {
 	var rx, rn, u1, u2 Number
 	var fx Field
@@ -177,19 +176,21 @@ func (sig *Signature) Bytes() []byte {
 }
 */
 
-//compressed signature parsing
-func (r *Signature) ParseBytes(sig []byte) {
+// compressed signature parsing
+func (r *Signature) ParseBytes(sig []byte) bool {
 	if len(sig) != 64 {
-		log.Panic()
+		//log.Panic()
+		return false
 	}
 	r.R.SetBytes(sig[0:32])
 	r.S.SetBytes(sig[32:64])
+	return true
 }
 
 //secp256k1_num_get_bin(sig64, 32, &sig.r);
 //secp256k1_num_get_bin(sig64 + 32, 32, &sig.s);
 
-//compressed signature parsing
+// compressed signature parsing
 func (sig *Signature) Bytes() []byte {
 	r := sig.R.Bytes() //endianess
 	s := sig.S.Bytes() //endianess
@@ -213,7 +214,9 @@ func (sig *Signature) Bytes() []byte {
 	if true {
 		ret := res.Bytes()
 		var sig2 Signature
-		sig2.ParseBytes(ret)
+		if !sig2.ParseBytes(ret) {
+			log.Panic("must pass in 64 byte sig")
+		}
 		if bytes.Equal(sig.R.Bytes(), sig2.R.Bytes()) == false {
 			log.Panic("serialization failed 1")
 		}

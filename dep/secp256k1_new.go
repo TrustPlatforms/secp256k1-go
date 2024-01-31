@@ -6,12 +6,12 @@ import (
 	//"errors"
 	//secp "./secp256k1-go"
 	"bytes"
-	secp "github.com/haltingstate/secp256k1-go/secp256k1-go2"
+	secp "github.com/TrustPlatforms/secp256k1-go/secp256k1-go2"
 	"log"
 )
 
-//intenal, may fail
-//may return nil
+// intenal, may fail
+// may return nil
 func _pubkeyFromSeckey(seckey []byte) []byte {
 	if len(seckey) != 32 {
 		log.Panic("seckey length invalid")
@@ -66,10 +66,10 @@ new_seckey:
 	return pubkey, seckey
 }
 
-//must succeed
-//TODO; hash on fail
-//TOO: must match, result of private key from deterministic gen?
-//deterministic gen will always return a valid private key
+// must succeed
+// TODO; hash on fail
+// TOO: must match, result of private key from deterministic gen?
+// deterministic gen will always return a valid private key
 func _PubkeyFromSeckey(seckey []byte) []byte {
 	if len(seckey) != 32 {
 		log.Panic("PubkeyFromSeckey: invalid length")
@@ -109,9 +109,9 @@ func _UncompressPubkey(pubkey []byte) []byte {
 	return pubkey2
 }
 
-//returns nil on error
-//should only need pubkey, not private key
-//deprecate for _UncompressedPubkey
+// returns nil on error
+// should only need pubkey, not private key
+// deprecate for _UncompressedPubkey
 func _UncompressedPubkeyFromSeckey(seckey []byte) []byte {
 
 	if len(seckey) != 32 {
@@ -137,9 +137,9 @@ func _UncompressedPubkeyFromSeckey(seckey []byte) []byte {
 	return uncompressed_pubkey
 }
 
-//generates deterministic keypair with weak SHA256 hash of seed
-//internal use only
-//be extremely careful with golang slice semantics
+// generates deterministic keypair with weak SHA256 hash of seed
+// internal use only
+// be extremely careful with golang slice semantics
 func _generateDeterministicKeyPair(seed []byte) ([]byte, []byte) {
 	if seed == nil {
 		log.Panic()
@@ -186,7 +186,7 @@ new_seckey:
 	return pubkey, seckey
 }
 
-//double SHA256, salted with ECDH operation in curve
+// double SHA256, salted with ECDH operation in curve
 func _Secp256k1Hash(hash []byte) []byte {
 	hash = SumSHA256(hash)
 	_, seckey := _generateDeterministicKeyPair(hash)            //seckey1 is usually sha256 of hash
@@ -195,15 +195,15 @@ func _Secp256k1Hash(hash []byte) []byte {
 	return SumSHA256(append(hash, ecdh...))                     //append signature to sha256(seed) and hash
 }
 
-//generate a single secure key
+// generate a single secure key
 func _GenerateDeterministicKeyPair(seed []byte) ([]byte, []byte) {
 	_, pubkey, seckey := _DeterministicKeyPairIterator(seed)
 	return pubkey, seckey
 }
 
-//Iterator for deterministic keypair generation. Returns SHA256, Pubkey, Seckey
-//Feed SHA256 back into function to generate sequence of seckeys
-//If private key is diclosed, should not be able to compute future or past keys in sequence
+// Iterator for deterministic keypair generation. Returns SHA256, Pubkey, Seckey
+// Feed SHA256 back into function to generate sequence of seckeys
+// If private key is diclosed, should not be able to compute future or past keys in sequence
 func _DeterministicKeyPairIterator(seed_in []byte) ([]byte, []byte, []byte) {
 	seed1 := _Secp256k1Hash(seed_in) //make it difficult to derive future seckeys from previous seckeys
 	seed2 := SumSHA256(append(seed_in, seed1...))
@@ -211,7 +211,7 @@ func _DeterministicKeyPairIterator(seed_in []byte) ([]byte, []byte, []byte) {
 	return seed1, pubkey, seckey
 }
 
-//Rename SignHash
+// Rename SignHash
 func _Sign(msg []byte, seckey []byte) []byte {
 
 	if len(seckey) != 32 {
@@ -259,7 +259,7 @@ func _Sign(msg []byte, seckey []byte) []byte {
 	return sig
 }
 
-//generate signature in repeatable way
+// generate signature in repeatable way
 func _SignDeterministic(msg []byte, seckey []byte, nonce_seed []byte) []byte {
 	nonce_seed2 := SumSHA256(nonce_seed) //deterministicly generate nonce
 
@@ -300,7 +300,7 @@ func _SignDeterministic(msg []byte, seckey []byte, nonce_seed []byte) []byte {
 
 }
 
-//Rename ChkSeckeyValidity
+// Rename ChkSeckeyValidity
 func _VerifySeckey(seckey []byte) int {
 	if len(seckey) != 32 {
 		return -1
@@ -324,7 +324,7 @@ func _VerifySeckey(seckey []byte) int {
 *           0: invalid public key
  */
 
-//Rename ChkPubkeyValidity
+// Rename ChkPubkeyValidity
 // returns 1 on success
 func _VerifyPubkey(pubkey []byte) int {
 	if len(pubkey) != 33 {
@@ -349,7 +349,7 @@ func _VerifyPubkey(pubkey []byte) int {
 	return 1 //valid
 }
 
-//Rename ChkSignatureValidity
+// Rename ChkSignatureValidity
 func _VerifySignatureValidity(sig []byte) int {
 	//64+1
 	if len(sig) != 65 {
@@ -371,8 +371,8 @@ func _VerifySignatureValidity(sig []byte) int {
 	return 1
 }
 
-//for compressed signatures, does not need pubkey
-//Rename SignatureChk
+// for compressed signatures, does not need pubkey
+// Rename SignatureChk
 func _VerifySignature(msg []byte, sig []byte, pubkey1 []byte) int {
 	if msg == nil || sig == nil || pubkey1 == nil {
 		log.Panic("VerifySignature, ERROR: invalid input, nils")
@@ -413,7 +413,7 @@ func _VerifySignature(msg []byte, sig []byte, pubkey1 []byte) int {
 	return 1 //valid signature
 }
 
-//SignatureErrorString returns error string for signature failure
+// SignatureErrorString returns error string for signature failure
 func _SignatureErrorString(msg []byte, sig []byte, pubkey1 []byte) string {
 
 	if msg == nil || len(sig) != 65 || len(pubkey1) != 33 {
@@ -440,8 +440,8 @@ func _SignatureErrorString(msg []byte, sig []byte, pubkey1 []byte) string {
 	return "No Error!"
 }
 
-//recovers the public key from the signature
-//recovery of pubkey means correct signature
+// recovers the public key from the signature
+// recovery of pubkey means correct signature
 func _RecoverPubkey(msg []byte, sig []byte) []byte {
 	if len(sig) != 65 {
 		log.Panic()
@@ -495,7 +495,7 @@ func _RecoverPubkey(msg []byte, sig []byte) []byte {
 
 }
 
-//raise a pubkey to the power of a seckey
+// raise a pubkey to the power of a seckey
 func _ECDH(pub []byte, sec []byte) []byte {
 	if len(sec) != 32 {
 		log.Panic()
